@@ -32,4 +32,8 @@ Total 95pts
 
 5pts Best Practices
 
+  3pts Code is well formatted and commented throughout
+  
+  2pts Code passes the html validator
+
 20pts Creative Portion 
