@@ -3,7 +3,7 @@ var matrixtofreqmap = new Map();
 var oscillatorarray=[];
 var gainarray=[];
 var keyState = "major";
-var keyMultipliers = {"major" : [1,
+var keyMultipliers = {"Major" : [1,
                                  Math.pow(2, 2/12),
                                  Math.pow(2, 4/12),
                                  Math.pow(2, 5/12),
@@ -11,7 +11,7 @@ var keyMultipliers = {"major" : [1,
                                  Math.pow(2, 9/12),
                                  Math.pow(2, 11/12),
                                  2],
-                      "nminor": [1,
+                      "Natural Minor": [1,
                                  Math.pow(2, 2/12),
                                  Math.pow(2, 3/12),
                                  Math.pow(2, 5/12),
@@ -19,7 +19,7 @@ var keyMultipliers = {"major" : [1,
                                  Math.pow(2, 8/12),
                                  Math.pow(2, 10/12),
                                  2],
-                      "hminor": [1,
+                      "Harmonic Minor": [1,
                                  Math.pow(2, 2/12),
                                  Math.pow(2, 3/12),
                                  Math.pow(2, 5/12),
@@ -27,7 +27,7 @@ var keyMultipliers = {"major" : [1,
                                  Math.pow(2, 8/12),
                                  Math.pow(2, 11/12),
                                  2],
-                      "mminor": [1,
+                      "Melodic Minor": [1,
                                  Math.pow(2, 2/12),
                                  Math.pow(2, 3/12),
                                  Math.pow(2, 5/12),
@@ -37,28 +37,17 @@ var keyMultipliers = {"major" : [1,
                                  2]};
 var aFreq = 440.0;
 var noteDict = {"C" : aFreq * Math.pow(2, -9/12),
-                "Db": aFreq * Math.pow(2, -8/12),
+                "D\u266D": aFreq * Math.pow(2, -8/12),
                 "D" : aFreq * Math.pow(2, -7/12),
-                "Eb": aFreq * Math.pow(2, -6/12),
+                "E\u266D": aFreq * Math.pow(2, -6/12),
                 "E" : aFreq * Math.pow(2, -5/12),
                 "F" : aFreq * Math.pow(2, -4/12),
-                "Gb": aFreq * Math.pow(2, -3/12),
+                "G\u266D": aFreq * Math.pow(2, -3/12),
                 "G" : aFreq * Math.pow(2, -2/12),
-                "Ab": aFreq * Math.pow(2, -1/12),
+                "A\u266D": aFreq * Math.pow(2, -1/12),
                 "A" : aFreq,
-                "Bb": aFreq * Math.pow(2, 1/12),
+                "B\u266D": aFreq * Math.pow(2, 1/12),
                 "B" : aFreq * Math.pow(2, 2/12)};
-
-
-
-/*matrixtofreqmap.set(0,523.25);
-matrixtofreqmap.set(1,493.88);
-matrixtofreqmap.set(2,440.00);
-matrixtofreqmap.set(3,392.00);
-matrixtofreqmap.set(4,349.23);
-matrixtofreqmap.set(5,329.63);
-matrixtofreqmap.set(6,293.66);
-matrixtofreqmap.set(7,261.63);*/
 
 var notearray=[];
 for(var i=0;i<8;i++){
@@ -164,6 +153,7 @@ function loadSong(){
 function songGetAsync(){
   //needs to submit a get request to the php on the html page that will get respond with the json data
 }
+
 function parseURLParams(url){
   var queryStart = url.indexOf("index=") + 6;
   var queryEnd = url.length + 1;
@@ -211,6 +201,7 @@ function setUpOscillators(startTime){
     initOscillatorandGain(matrixtofreqmap.get(i), startTime);
   }
 }
+
 //sets all oscillators and gains for them, which are connected to the master volume
 function initOscillatorandGain(freq,timetostart){
   var src = audioCtx.createOscillator();
@@ -223,8 +214,6 @@ function initOscillatorandGain(freq,timetostart){
   oscillatorarray.push(src);
   gainarray.push(srcgain);
 }
-
-
 
 function changeVolume(volumelevel){
   var tempvolume=volumelevel.value;

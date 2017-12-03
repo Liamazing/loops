@@ -1,0 +1,480 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+
+class Note extends React.Component {
+    constructor(props) {
+        super(props);
+        this.idtxt = "" + this.props.beatNum + this.props.noteNum;
+    }
+
+    render() {
+        return (
+            <span>
+                <input type="checkbox"
+                       id={this.idtxt}
+                       defaultChecked={this.props.initialState}
+                       onClick={()=>noteChange(this.props.beatNum, this.props.noteNum)}/>
+                <label htmlFor={this.idtxt}></label>
+            </span>
+        );
+    }
+}
+
+class Beat extends React.Component {
+
+    constructor(props) {
+        super(props);
+        /*https://stackoverflow.com/questions/22876978/loop-inside-react-jsx how to use loops to generate elements*/
+		this.notes = [];
+    	for(let i = 0; i < 8; i++) {
+        	this.notes.unshift(
+            	<Note beatNum={this.props.beatNum}
+                      noteNum={i}
+                      initialState={this.props.initialStates[i]}
+					  clickEvent={()=>this.props.clickEvent(i)}
+                      key={this.props.beatNum+""+i} />);
+		}
+    }
+
+    render() {
+        return(
+            <div className="beat" id={this.props.beatNum}>
+                {this.notes}
+            </div>
+        );
+    }
+}
+
+class NoteGrid extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.beats = [];
+        for(let i = 0; i < 8; i++) {
+            this.beats.push(
+                <Beat beatNum={i}
+                      initialStates={this.props.states[i]}
+                      key={i} />);
+        }
+    }
+
+    render() {
+        return(
+            <div className="grid">
+                {this.beats}
+            </div>
+        );
+    }
+}
+
+class Tempo extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {tempo: (this.props.tempo === null) ? 120 : parseInt(this.props.tempo, 10)};
+    }
+
+    change(newTempo) {
+        if(newTempo <= 280 && newTempo >= 20) {
+            this.setState({tempo: newTempo});
+            tempoChange(newTempo);
+        }
+        else if(newTempo <20) {
+            this.setState({tempo: 20});
+            tempoChange(20);
+        }
+        else if(newTempo > 280) {
+            this.setState({tempo: 280});
+            tempoChange(280);
+        }
+    }
+
+    render() {
+        return(
+            <div className="setting">
+                <div className="title">tempo</div>
+                <button className="dec" onClick={()=>this.change(parseInt(this.state.tempo, 10) - 1)}> </button>
+                <div className="tempoText">{this.state.tempo}</div>
+                <button className="inc" onClick={()=>this.change(parseInt(this.state.tempo, 10) + 1)}> </button>
+
+                <input type="range"
+                       min="20"
+                       max="280"
+                       step="1"
+                       value={this.state.tempo}
+                       onChange={e=>this.change(e.target.value)} />
+            </div>
+        );
+    }
+
+}
+
+class Volume extends React.Component {
+    render() {
+        return(
+            <div className="setting">
+                <div className="title">volume</div>
+                <input type="range"
+                   min="0"
+                   max="100"
+                   step="10"
+                   defaultValue="50"
+                   onChange={e=>volumeChange(e.target.value)} />
+            </div>
+        );
+    }
+}
+
+class Dropdown extends React.Component {
+    constructor(props) {
+        super(props);
+        this.options = [];
+        for(let i = 0; i < this.props.options.length; i ++) {
+            this.options.push(
+                <button className="droption"
+                        onClick={()=>this.changeState(this.props.options[i])}
+                        key={this.props.options[i]}>{this.props.options[i]}</button>);
+        }
+        this.state = {value: this.props.initialState};
+    }
+
+    changeState(e) {
+        this.setState({value: e});
+        this.props.clickEvent(e);
+    }
+
+    render() {
+        return(
+            /* https://www.w3schools.com/css/css_dropdowns.asp */
+            <div className="dropdown">
+                <button className="dropbtn">{this.state.value}</button>
+                <div className="dropdown-content">
+                    {this.options}
+                </div>
+            </div>
+        );
+    }
+}
+
+class Key extends React.Component {
+    constructor(props) {
+        super(props);
+        this.keys = ["A", "B\u266D", "B", "C", "D\u266D", "D", "E\u266D", "E", "F", "G\u266D", "G"];
+        this.keyTypes = ["Major", "Natural Minor", "Harmonic Minor", "Melodic Minor"];
+    }
+    render() {
+        return(
+            <div className="setting">
+                <div className="title">key</div>
+                <Dropdown initialState={this.props.keys} options={this.keys} clickEvent={a=>keyChange(a)} />
+                <Dropdown initialState={this.props.keyType} options={this.keyTypes} clickEvent={a=>keyTypeChange(a)} />
+            </div>
+        );
+    }
+}
+
+class Playback extends React.Component {
+    render() {
+        return(
+            <div className="setting">
+                <div className="title">playback</div>
+                <button className="playPause"></button>
+            </div>
+        );
+    }
+}
+
+class LoopScreen extends React.Component {
+    render() {
+        return (
+            <div className="container">
+                <div className="left"></div>
+                <div className="center">
+                    <NoteGrid states={this.props.states}/>
+                </div>
+                <div className="right">
+                    <Key keys={this.props.keys} keyType={this.props.keyType} />
+                    <Tempo tempo={this.props.tempo}/>
+                    <Volume />`
+                </div>
+            </div>
+        );
+    }
+
+}
+
+//====================================
+
+let notes = [[false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false],
+             [false, false, false, false, false, false, false, false]];
+let tempo = 120;
+let beatInterval = 60/tempo;
+let volumeNum = 50;
+let key = "C";
+let keyType = "Major";
+
+//create the context for the web audio
+var matrixtofreqmap = new Map();
+var oscillatorarray=[];
+var gainarray=[];
+var keyMultipliers = {"Major" : [1,
+                                 Math.pow(2, 2/12),
+                                 Math.pow(2, 4/12),
+                                 Math.pow(2, 5/12),
+                                 Math.pow(2, 7/12),
+                                 Math.pow(2, 9/12),
+                                 Math.pow(2, 11/12),
+                                 2],
+                      "Natural Minor": [1,
+                                 Math.pow(2, 2/12),
+                                 Math.pow(2, 3/12),
+                                 Math.pow(2, 5/12),
+                                 Math.pow(2, 7/12),
+                                 Math.pow(2, 8/12),
+                                 Math.pow(2, 10/12),
+                                 2],
+                      "Harmonic Minor": [1,
+                                 Math.pow(2, 2/12),
+                                 Math.pow(2, 3/12),
+                                 Math.pow(2, 5/12),
+                                 Math.pow(2, 7/12),
+                                 Math.pow(2, 8/12),
+                                 Math.pow(2, 11/12),
+                                 2],
+                      "Melodic Minor": [1,
+                                 Math.pow(2, 2/12),
+                                 Math.pow(2, 3/12),
+                                 Math.pow(2, 5/12),
+                                 Math.pow(2, 7/12),
+                                 Math.pow(2, 9/12),
+                                 Math.pow(2, 11/12),
+                                 2]};
+var aFreq = 440.0;
+var noteDict = {"C" : aFreq * Math.pow(2, -9/12),
+                "D\u266D": aFreq * Math.pow(2, -8/12),
+                "D" : aFreq * Math.pow(2, -7/12),
+                "E\u266D": aFreq * Math.pow(2, -6/12),
+                "E" : aFreq * Math.pow(2, -5/12),
+                "F" : aFreq * Math.pow(2, -4/12),
+                "G\u266D": aFreq * Math.pow(2, -3/12),
+                "G" : aFreq * Math.pow(2, -2/12),
+                "A\u266D": aFreq * Math.pow(2, -1/12),
+                "A" : aFreq,
+                "B\u266D": aFreq * Math.pow(2, 1/12),
+                "B" : aFreq * Math.pow(2, 2/12)};
+
+/*var notearray=[];
+for(var i=0;i<8;i++){
+  notearray[i]=[];
+  for(var j=0;j<8;j++){
+    notearray[i][j]=false;
+  }
+}
+
+notearray[0][0]=true;
+notearray[1][1]=true;
+notearray[2][2]=true;
+notearray[3][3]=true;
+notearray[4][4]=true;
+notearray[5][5]=true;
+notearray[6][6]=true;
+notearray[7][7]=true;*/
+
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+var volume = audioCtx.createGain();
+volume.connect(audioCtx.destination);
+volume.gain.value=volumeNum/100;
+//above line creates volume and starts it out at zero to correspond to where the volume bar starts
+
+function noteChange(beatNum, noteNum) {
+    notes[beatNum][noteNum] = !notes[beatNum][noteNum];
+}
+
+function volumeChange(newVolume) {
+    volumeNum = newVolume;
+    volume.gain.value = Math.pow(volumeNum / 100, 2);
+}
+
+function tempoChange(newTempo) {
+    tempo = parseInt(newTempo);
+    beatInterval = 60/tempo;
+}
+
+function keyChange(newKey) {
+    key = newKey;
+    changeKey();
+}
+
+function keyTypeChange(newKeyType) {
+    keyType = newKeyType;
+    changeKey();
+}
+
+function initKey(newKey){
+  let keyFreq = noteDict[newKey];
+  for(let i=0; i < 8; i++) {
+    matrixtofreqmap.set(i,keyFreq * keyMultipliers[keyType][i]);
+  }
+}
+
+function changeKey(){
+  console.log(key);
+  let keyFreq = noteDict[key];
+  for(let i=0; i < 8; i++) {
+    matrixtofreqmap.delete(i);
+    matrixtofreqmap.set(i,keyFreq * keyMultipliers[keyType][i]);
+    //console.log(matrixtofreqmap[i]);
+    oscillatorarray[i].frequency.value=matrixtofreqmap.get(i);
+  }
+}
+
+function webpageloaded(){
+  initKey(key);
+  var starttime = audioCtx.currentTime + 0.500;
+  setUpOscillators(starttime);
+  playpiece(starttime);
+  //loadSong();
+}
+//window.onload=webpageloaded;
+
+function playpiece(starttime) {
+  var nextbeat = starttime;
+  var beatcount = 0;
+  var myticker = tick;
+  var myInterval = setInterval(myticker,0);
+
+  function tick(){
+    if(nextbeat<=audioCtx.currentTime){
+      nextbeat=Math.round((audioCtx.currentTime+beatInterval)*100) / 100;
+      console.log(nextbeat);
+      chrisBrown(beatcount);
+      playColumn(beatcount,nextbeat);
+      
+      //alert("playing column:" + beatcount%8);
+      beatcount = (beatcount+1)%8;
+    }
+  }
+}
+
+function chrisBrown(beatNum) {
+    let prevBeat = (beatNum - 1) < 0 ? 7 : (beatNum - 1);
+    // Clear previous beat
+    document.getElementById(prevBeat + "").style.background = "#2c3e50";
+    // Light current beat
+    document.getElementById(beatNum + "").style.background = "#d15d36";
+}
+
+function playColumn(i,nextbeattime){
+  for(var j=0;j<8;j++){
+    if(notes[i][j]===true){
+      //  alert("playing note!");
+      //gainarray[j].gain.value=1;
+      gainarray[j].gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + .03);
+      
+      //gainarray[j].gain.setValueAtTime(0,nextbeattime);
+      gainarray[j].gain.exponentialRampToValueAtTime(0.0001, nextbeattime + .03);
+    }
+  }
+}
+
+function loadSong(){
+  if(parseURLParams(window.location.href)!=false){
+    console.log(parseURLParams(window.location.href));
+    songGetAsync();
+
+  }
+}
+
+function songGetAsync(){
+  //needs to submit a get request to the php on the html page that will get respond with the json data
+}
+
+function parseURLParams(url){
+  var queryStart = url.indexOf("index=") + 6;
+  var queryEnd = url.length + 1;
+  var query=url.slice(queryStart, queryEnd - 1);
+  var parsedquery = parseInt(query);
+  if(isNaN(parsedquery)){
+    return false;
+  }
+  else{
+    return parsedquery;
+  }
+}
+
+//function savefile(){
+//  var index=3;
+//  var xmlHttp = new XMLHttpRequest();
+//  xmlHttp.open("GET", "hello.txt", true);
+//  xmlHttp.addEventListener("load", ajaxCallback, false);
+//  xmlHttp.send(null);
+//  function ajaxCallback(event){
+//    console.log( "Your file contains the text: " + event.target.responseText);
+//  }
+//  index= event.target.responseText;
+//  var myURL = 'http://ec2-18-221-49-149.us-east-2.compute.amazonaws.com/~losler/cp/webaudiopractice.html?index=' + index;
+//  document.getElementById('url').value = myURL;
+//}
+
+//NEED TO IMPLEMENT THE RESPONSE TO THIS GET REQUEST IN PHP!!!!!!!!
+//string mytxt = json.encode({tempo: tempo, key: key, name: name, notes: note});
+
+function togglePlayPause(){
+  if(audioCtx.state === 'running') {
+    audioCtx.suspend().then(function() {
+      console.log("suspended");
+    });
+  } else if(audioCtx.state === 'suspended') {
+    audioCtx.resume().then(function() {
+      console.log("running");
+    });
+  }
+}
+//calls helper function initOscillatorandGain to set up all the oscillators to start playing at the startTime
+function setUpOscillators(startTime){
+  for (var i = 0; i < 8; ++i) {
+    initOscillatorandGain(matrixtofreqmap.get(i), startTime);
+  }
+}
+
+//sets all oscillators and gains for them, which are connected to the master volume
+function initOscillatorandGain(freq,timetostart){
+  var src = audioCtx.createOscillator();
+  var srcgain = audioCtx.createGain();
+  srcgain.gain.value=0.0001;
+  srcgain.connect(volume);
+  src.frequency.value=freq;
+  src.connect(srcgain);
+  src.start();
+  oscillatorarray.push(src);
+  gainarray.push(srcgain);
+}
+
+//function changeVolume(volumelevel){
+//  var fraction = parseInt(volumelevel.value) / parseInt(volumelevel.max);
+//  volume.gain.value=fraction*fraction;
+//}
+
+//function changeTempo(tempolevel){
+//  var temptempo=tempolevel.value;
+//  var fraction = parseInt(tempolevel.value) / parseInt(tempolevel.max);
+//  tempo=fraction*240;
+//}
+
+
+
+//////////////////////////////////////////////////////////
+
+ReactDOM.render(<LoopScreen states={notes}
+                            tempo={tempo}
+                            keys={key}
+                            keyType={keyType} />,
+                document.getElementById("root"));
+
+webpageloaded();

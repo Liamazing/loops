@@ -43,3 +43,5 @@ Total 95pts
   2pts Code passes the html validator
 
 20pts Creative Portion 
+
+5pts Rubric was submitted on time (obv)
