@@ -173,12 +173,25 @@ class Key extends React.Component {
     }
 }
 
-class Playback extends React.Component {
+class PlayPause extends React.Component {
     render() {
+        /* https://css-tricks.com/making-pure-css-playpause-button/ really cool play/pause button */
         return(
             <div className="setting">
-                <div className="title">playback</div>
-                <button className="playPause"></button>
+                <div className="playpause">
+                    <input type="checkbox" id="playpause" onClick={()=>togglePlayPause()}/>
+                    <label htmlFor="playpause" tabindex="1"></label>
+                </div>
+            </div>
+        );
+    }
+}
+
+class ClearNotes extends React.Component {
+    render() {
+        return (
+            <div className="setting">
+                <button className="clearAll" onClick={()=>clearAll()}>clear grid</button>
             </div>
         );
     }
@@ -193,9 +206,11 @@ class LoopScreen extends React.Component {
                     <NoteGrid states={this.props.states}/>
                 </div>
                 <div className="right">
+                    <PlayPause />
                     <Key keys={this.props.keys} keyType={this.props.keyType} />
                     <Tempo tempo={this.props.tempo}/>
-                    <Volume />`
+                    <Volume />
+                    <ClearNotes />
                 </div>
             </div>
         );
@@ -269,32 +284,25 @@ var noteDict = {"C" : aFreq * Math.pow(2, -9/12),
                 "B\u266D": aFreq * Math.pow(2, 1/12),
                 "B" : aFreq * Math.pow(2, 2/12)};
 
-/*var notearray=[];
-for(var i=0;i<8;i++){
-  notearray[i]=[];
-  for(var j=0;j<8;j++){
-    notearray[i][j]=false;
-  }
-}
-
-notearray[0][0]=true;
-notearray[1][1]=true;
-notearray[2][2]=true;
-notearray[3][3]=true;
-notearray[4][4]=true;
-notearray[5][5]=true;
-notearray[6][6]=true;
-notearray[7][7]=true;*/
-
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var volume = audioCtx.createGain();
 volume.connect(audioCtx.destination);
 volume.gain.value=volumeNum/100;
 //above line creates volume and starts it out at zero to correspond to where the volume bar starts
 
+function clearAll() {
+    for(let b = 0; b < 8; b++) {
+        for(let n = 0; n < 8; n++) {
+            notes[b][n] = false;
+            document.getElementById(b + "" + n).checked = false;;
+        }
+    }
+}
+
 function noteChange(beatNum, noteNum) {
     notes[beatNum][noteNum] = !notes[beatNum][noteNum];
 }
+
 
 function volumeChange(newVolume) {
     volumeNum = newVolume;
@@ -341,7 +349,6 @@ function webpageloaded(){
   playpiece(starttime);
   //loadSong();
 }
-//window.onload=webpageloaded;
 
 function playpiece(starttime) {
   var nextbeat = starttime;
@@ -355,7 +362,7 @@ function playpiece(starttime) {
       console.log(nextbeat);
       chrisBrown(beatcount);
       playColumn(beatcount,nextbeat);
-      
+
       //alert("playing column:" + beatcount%8);
       beatcount = (beatcount+1)%8;
     }
@@ -376,7 +383,7 @@ function playColumn(i,nextbeattime){
       //  alert("playing note!");
       //gainarray[j].gain.value=1;
       gainarray[j].gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + .03);
-      
+
       //gainarray[j].gain.setValueAtTime(0,nextbeattime);
       gainarray[j].gain.exponentialRampToValueAtTime(0.0001, nextbeattime + .03);
     }
