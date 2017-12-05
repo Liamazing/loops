@@ -319,3 +319,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 button:active {
     transform: translateY(.5vmin);
 }
+
+/* prevent line breaks in bold text */
+strong {
+    white-space: nowrap;
+}

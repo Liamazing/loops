@@ -211,6 +211,7 @@ class LoopScreen extends React.Component {
                     <Tempo tempo={this.props.tempo}/>
                     <Volume />
                     <ClearNotes />
+                    <p className="signature">a project by <strong>liam osler</strong> and <strong>matt gleeson</strong></p>
                 </div>
             </div>
         );
@@ -483,5 +484,12 @@ ReactDOM.render(<LoopScreen states={notes}
                             keys={key}
                             keyType={keyType} />,
                 document.getElementById("root"));
+
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+        document.getElementById("playpause").checked = !document.getElementById("playpause").checked;
+        togglePlayPause();
+    }
+}
 
 webpageloaded();
