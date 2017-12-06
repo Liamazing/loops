@@ -1,7 +1,7 @@
 # Loop Site (Creative Project)
 # Matt Gleeson and Liam Osler
 
-Description: Our idea is to make a website where you are presented with a number of beats (probably 8) where you can select any of the diatonic notes from the scale and
+Description: Our idea is to make a website where you are presented with a number of beats (probably 8) where you can select any of the diatonic notes from the scale and loop the sound.
 
 Total 95pts
 
@@ -49,3 +49,7 @@ Total 95pts
 Creative Portion Description:
 
 For our creative portion, we added a volume control function, used express and socket.io to allow asynchronous saving of files, added the ability to transpose between the Major, Natural Minor, Harmonic Minor, and Melodic Minor of the key, added a clear grid function, and used delta timing to ensure that the application wouldn’t skip beats/play them out of time. Users can also use the spacebar to play/pause the loop instead of clicking on the play/pause button. Integrating React and designing the UI took a lot longer than we expected, and ended up consisting of about half of the project time. We also set up our server to be constantly hosted on our AWS instance without the need for repeatedly calling the node function.
+
+How to Test:
+
+The site is continuously hosted here: http://ec2-18-221-49-149.us-east-2.compute.amazonaws.com:3456
