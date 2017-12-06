@@ -16,10 +16,11 @@ body, html {
     height: 100%;
 }
 .left {
-    width:20%;
+    width:19%;
     height: 100%;
     float: left;
     border-collapse: collapse;
+    padding-left: 1%
 }
 .center {
     width: 60%;

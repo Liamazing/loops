@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import io from 'socket.io-client';
 
+// One note
 class Note extends React.Component {
     constructor(props) {
         super(props);
@@ -21,6 +23,7 @@ class Note extends React.Component {
     }
 }
 
+// One beat
 class Beat extends React.Component {
 
     constructor(props) {
@@ -46,6 +49,7 @@ class Beat extends React.Component {
     }
 }
 
+// The entire grid
 class NoteGrid extends React.Component {
 
     constructor(props) {
@@ -68,6 +72,7 @@ class NoteGrid extends React.Component {
     }
 }
 
+// The tempo setting
 class Tempo extends React.Component {
     constructor(props) {
         super(props);
@@ -109,6 +114,7 @@ class Tempo extends React.Component {
 
 }
 
+// The volume setting
 class Volume extends React.Component {
     render() {
         return(
@@ -125,6 +131,7 @@ class Volume extends React.Component {
     }
 }
 
+// A generic dropdown menu
 class Dropdown extends React.Component {
     constructor(props) {
         super(props);
@@ -156,6 +163,7 @@ class Dropdown extends React.Component {
     }
 }
 
+// The Key setting
 class Key extends React.Component {
     constructor(props) {
         super(props);
@@ -173,6 +181,7 @@ class Key extends React.Component {
     }
 }
 
+// The play/pause button
 class PlayPause extends React.Component {
     render() {
         /* https://css-tricks.com/making-pure-css-playpause-button/ really cool play/pause button */
@@ -187,6 +196,7 @@ class PlayPause extends React.Component {
     }
 }
 
+// The clear grid button
 class ClearNotes extends React.Component {
     render() {
         return (
@@ -197,11 +207,25 @@ class ClearNotes extends React.Component {
     }
 }
 
+// The save button
+class Save extends React.Component {
+    render() {
+        return (
+            <div className="setting">
+                <button className="clearAll" onClick={()=>sendSong()}>save</button>
+            </div>
+        );
+    }
+}
+
+// The entire screen
 class LoopScreen extends React.Component {
     render() {
         return (
             <div className="container">
-                <div className="left"></div>
+                <div className="left">
+                    <Save />
+                </div>
                 <div className="center">
                     <NoteGrid states={this.props.states}/>
                 </div>
@@ -221,6 +245,7 @@ class LoopScreen extends React.Component {
 
 //====================================
 
+// Variables to contain the global state of the loop
 let notes = [[false, false, false, false, false, false, false, false],
              [false, false, false, false, false, false, false, false],
              [false, false, false, false, false, false, false, false],
@@ -234,6 +259,29 @@ let beatInterval = 60/tempo;
 let volumeNum = 50;
 let key = "C";
 let keyType = "Major";
+
+// Socket.io to handle saving files
+var socketio = io.connect();
+socketio.on('load_file', function(data) {
+            //update our data only if we receive meaningful stuff
+            if(data != false) {
+                notes = data.notes;
+                tempo = data.tempo;
+                beatInterval = 60/tempo;
+                key = data.key;
+                keyType = data.keyType;
+            }
+            //call initialization function
+            webpageloaded();});
+//Handle confirmation messages from the server
+socketio.on('save_msg', function(data) {
+    if(data != false) {
+        alert("Success! Access this loop at http://ec2-18-221-49-149.us-east-2.compute.amazonaws.com:3456/" + data);
+    }
+    else {
+        alert("Oops! Something went wrong when we were saving your loop. :(");
+    }
+});
 
 //create the context for the web audio
 var matrixtofreqmap = new Map();
@@ -284,13 +332,19 @@ var noteDict = {"C" : aFreq * Math.pow(2, -9/12),
                 "A" : aFreq,
                 "B\u266D": aFreq * Math.pow(2, 1/12),
                 "B" : aFreq * Math.pow(2, 2/12)};
-
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var volume = audioCtx.createGain();
 volume.connect(audioCtx.destination);
 volume.gain.value=volumeNum/100;
 //above line creates volume and starts it out at zero to correspond to where the volume bar starts
 
+// Sends the loop to the server
+function sendSong() {
+    console.log("sending song to server");
+    socketio.emit("save_loop", JSON.stringify({notes: notes, tempo: tempo, key: key, keyType: keyType}));
+}
+
+// Clears the entire grid
 function clearAll() {
     for(let b = 0; b < 8; b++) {
         for(let n = 0; n < 8; n++) {
@@ -300,31 +354,36 @@ function clearAll() {
     }
 }
 
+// Updates our global notes when a box is clicked
 function noteChange(beatNum, noteNum) {
     notes[beatNum][noteNum] = !notes[beatNum][noteNum];
 }
 
-
+// Updates our global volume linked to the volume slider
 function volumeChange(newVolume) {
     volumeNum = newVolume;
     volume.gain.value = Math.pow(volumeNum / 100, 2);
 }
 
+// Updates the tempo linked to the tempo setting
 function tempoChange(newTempo) {
     tempo = parseInt(newTempo);
     beatInterval = 60/tempo;
 }
 
+// Changes the key linked to the key setting
 function keyChange(newKey) {
     key = newKey;
     changeKey();
 }
 
+// Changes the key linked to the key setting
 function keyTypeChange(newKeyType) {
     keyType = newKeyType;
     changeKey();
 }
 
+// Initializes key frequencies at the beginning of the app
 function initKey(newKey){
   let keyFreq = noteDict[newKey];
   for(let i=0; i < 8; i++) {
@@ -332,25 +391,32 @@ function initKey(newKey){
   }
 }
 
+// Changes the key when the user selects a new key
 function changeKey(){
   console.log(key);
   let keyFreq = noteDict[key];
   for(let i=0; i < 8; i++) {
     matrixtofreqmap.delete(i);
     matrixtofreqmap.set(i,keyFreq * keyMultipliers[keyType][i]);
-    //console.log(matrixtofreqmap[i]);
     oscillatorarray[i].frequency.value=matrixtofreqmap.get(i);
   }
 }
 
-function webpageloaded(){
+// A callback to run once we receive confirmation from the server
+function webpageloaded() {
+  ReactDOM.render(<LoopScreen states={notes}
+                              tempo={tempo}
+                              keys={key}
+                              keyType={keyType} />,
+                   document.getElementById("root"));
   initKey(key);
   var starttime = audioCtx.currentTime + 0.500;
   setUpOscillators(starttime);
   playpiece(starttime);
-  //loadSong();
+
 }
 
+// Our main runloop
 function playpiece(starttime) {
   var nextbeat = starttime;
   var beatcount = 0;
@@ -361,7 +427,7 @@ function playpiece(starttime) {
     if(nextbeat<=audioCtx.currentTime){
       nextbeat=Math.round((audioCtx.currentTime+beatInterval)*100) / 100;
       console.log(nextbeat);
-      chrisBrown(beatcount);
+      highlight(beatcount);
       playColumn(beatcount,nextbeat);
 
       //alert("playing column:" + beatcount%8);
@@ -370,7 +436,8 @@ function playpiece(starttime) {
   }
 }
 
-function chrisBrown(beatNum) {
+// Handles highlighting the column that is being played
+function highlight(beatNum) {
     let prevBeat = (beatNum - 1) < 0 ? 7 : (beatNum - 1);
     // Clear previous beat
     document.getElementById(prevBeat + "").style.background = "#2c3e50";
@@ -378,61 +445,17 @@ function chrisBrown(beatNum) {
     document.getElementById(beatNum + "").style.background = "#d15d36";
 }
 
+// Plays a specific column
 function playColumn(i,nextbeattime){
   for(var j=0;j<8;j++){
     if(notes[i][j]===true){
-      //  alert("playing note!");
-      //gainarray[j].gain.value=1;
       gainarray[j].gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + .03);
-
-      //gainarray[j].gain.setValueAtTime(0,nextbeattime);
       gainarray[j].gain.exponentialRampToValueAtTime(0.0001, nextbeattime + .03);
     }
   }
 }
 
-function loadSong(){
-  if(parseURLParams(window.location.href)!=false){
-    console.log(parseURLParams(window.location.href));
-    songGetAsync();
-
-  }
-}
-
-function songGetAsync(){
-  //needs to submit a get request to the php on the html page that will get respond with the json data
-}
-
-function parseURLParams(url){
-  var queryStart = url.indexOf("index=") + 6;
-  var queryEnd = url.length + 1;
-  var query=url.slice(queryStart, queryEnd - 1);
-  var parsedquery = parseInt(query);
-  if(isNaN(parsedquery)){
-    return false;
-  }
-  else{
-    return parsedquery;
-  }
-}
-
-//function savefile(){
-//  var index=3;
-//  var xmlHttp = new XMLHttpRequest();
-//  xmlHttp.open("GET", "hello.txt", true);
-//  xmlHttp.addEventListener("load", ajaxCallback, false);
-//  xmlHttp.send(null);
-//  function ajaxCallback(event){
-//    console.log( "Your file contains the text: " + event.target.responseText);
-//  }
-//  index= event.target.responseText;
-//  var myURL = 'http://ec2-18-221-49-149.us-east-2.compute.amazonaws.com/~losler/cp/webaudiopractice.html?index=' + index;
-//  document.getElementById('url').value = myURL;
-//}
-
-//NEED TO IMPLEMENT THE RESPONSE TO THIS GET REQUEST IN PHP!!!!!!!!
-//string mytxt = json.encode({tempo: tempo, key: key, name: name, notes: note});
-
+// Handles the play and pause function
 function togglePlayPause(){
   if(audioCtx.state === 'running') {
     audioCtx.suspend().then(function() {
@@ -464,32 +487,12 @@ function initOscillatorandGain(freq,timetostart){
   gainarray.push(srcgain);
 }
 
-//function changeVolume(volumelevel){
-//  var fraction = parseInt(volumelevel.value) / parseInt(volumelevel.max);
-//  volume.gain.value=fraction*fraction;
-//}
-
-//function changeTempo(tempolevel){
-//  var temptempo=tempolevel.value;
-//  var fraction = parseInt(tempolevel.value) / parseInt(tempolevel.max);
-//  tempo=fraction*240;
-//}
-
-
-
 //////////////////////////////////////////////////////////
 
-ReactDOM.render(<LoopScreen states={notes}
-                            tempo={tempo}
-                            keys={key}
-                            keyType={keyType} />,
-                document.getElementById("root"));
-
+// Space activates play/pause globally
 document.body.onkeyup = function(e){
     if(e.keyCode == 32){
         document.getElementById("playpause").checked = !document.getElementById("playpause").checked;
         togglePlayPause();
     }
 }
-
-webpageloaded();
