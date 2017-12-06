@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 //extracts the requested loop's index from the URL, ensures that it's a number, and reads and stores the data from the corresponding .json file
 app.get('/:loopIndex', function (req, res) {
-    console.log(req.params.loopIndex);
+    console.log("request for " + req.params.loopIndex);
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
     var parsedquery = parseInt(req.params.loopIndex);
     if(isNaN(parsedquery)){
@@ -41,6 +41,7 @@ io.sockets.on("connection", function(socket){
     }
     else{
       socket.emit("load_file", JSON.parse(dataFromFile));
+      dataFromFile = false;
     }
     //Recieves the 'save_loop' event message from the client, and saves the unparsed json data to a new .json file
     socket.on('save_loop', function(data) {
