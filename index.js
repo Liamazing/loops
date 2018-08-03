@@ -224,7 +224,7 @@ class LoopScreen extends React.Component {
         return (
             <div className="container">
                 <div className="left">
-                    <Save />
+                    //<Save />
                 </div>
                 <div className="center">
                     <NoteGrid states={this.props.states}/>
