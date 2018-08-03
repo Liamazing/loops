@@ -208,7 +208,7 @@ class ClearNotes extends React.Component {
 }
 
 // The save button
-class Save extends React.Component {
+/*class Save extends React.Component {
     render() {
         return (
             <div className="setting">
@@ -216,7 +216,7 @@ class Save extends React.Component {
             </div>
         );
     }
-}
+}*/
 
 // The entire screen
 class LoopScreen extends React.Component {
