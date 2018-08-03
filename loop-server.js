@@ -4,7 +4,7 @@ const path = require('path'),
       express = require('express'),
       app = express(),
       server = require('http').Server(app);
-      socketio = require("socket.io"),
+//      socketio = require("socket.io"),
       fs = require('fs');
 
 var dataFromFile;
@@ -33,7 +33,7 @@ app.get('/:loopIndex', function (req, res) {
 
 server.listen(3456);
 
-var io = socketio.listen(server);
+/*var io = socketio.listen(server);
 io.sockets.on("connection", function(socket){
 	// Checks whether the client tried to access a file, and sends a socket.emit message with the file data to the client side of javascript
     if(!dataFromFile){
@@ -62,4 +62,4 @@ io.sockets.on("connection", function(socket){
       });
 
   	});
-});
+});*/
