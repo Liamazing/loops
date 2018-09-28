@@ -17,4 +17,4 @@ index.js houses most of the interesting code. The first section is the react cod
 
 index.css is the css that we developed extensively.
 
-loop-server.js is a small node/express/socket server that we cooked up to handle serving our packaged code and allow users to save their loops.
+loop-server.js is a small node/express server that we cooked up to handle serving our packaged code and allow users to save their loops.
