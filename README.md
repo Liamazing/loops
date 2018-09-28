@@ -1,5 +1,5 @@
 # L∞ps
-# Liam Osler and Matt Gleeson
+#### Liam Osler and Matt Gleeson
 
 We created a desktop site that allows you to customize a musical loop through eight beats using React and Web Audio Api
 
