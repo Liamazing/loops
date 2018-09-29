@@ -32,34 +32,3 @@ app.get('/:loopIndex', function (req, res) {
 });
 
 server.listen(3456);
-
-/*var io = socketio.listen(server);
-io.sockets.on("connection", function(socket){
-	// Checks whether the client tried to access a file, and sends a socket.emit message with the file data to the client side of javascript
-    if(!dataFromFile){
-      socket.emit("load_file", false);
-    }
-    else{
-      socket.emit("load_file", JSON.parse(dataFromFile));
-      dataFromFile = false;
-    }
-    //Recieves the 'save_loop' event message from the client, and saves the unparsed json data to a new .json file
-    socket.on('save_loop', function(data) {
-      var fileContent = data;
-      var dir = '/home/losler/saved_loops/';
-      fs.readdir(dir, (err, files) => {
-        if(err) throw err;
-        indexToSave=parseInt(files.length,10);
-        var filepath = dir+indexToSave+'.json';
-        //attempts to write, returning false if unsuccessful or with the index of the file if successful
-        fs.writeFile(filepath,fileContent,(err) => {
-          if(err){
-            socket.emit("save_msg",false);
-          };
-          console.log("the file was successfully saved!!");
-          socket.emit("save_msg",indexToSave);
-        });
-      });
-
-  	});
-});*/

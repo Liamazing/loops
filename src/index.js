@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import io from 'socket.io-client';
 
 // One note
 class Note extends React.Component {
@@ -206,18 +205,6 @@ class ClearNotes extends React.Component {
         );
     }
 }
-
-// The save button
-/*class Save extends React.Component {
-    render() {
-        return (
-            <div className="setting">
-                <button className="clearAll" onClick={()=>sendSong()}>save</button>
-            </div>
-        );
-    }
-}*/
-
 // The entire screen
 class LoopScreen extends React.Component {
     render() {
@@ -258,29 +245,6 @@ let beatInterval = 60/tempo;
 let volumeNum = 50;
 let key = "C";
 let keyType = "Major";
-
-// Socket.io to handle saving files
-/*var socketio = io.connect();
-socketio.on('load_file', function(data) {
-            //update our data only if we receive meaningful stuff
-            if(data != false) {
-                notes = data.notes;
-                tempo = data.tempo;
-                beatInterval = 60/tempo;
-                key = data.key;
-                keyType = data.keyType;
-            }
-            //call initialization function
-            webpageloaded();});
-//Handle confirmation messages from the server
-socketio.on('save_msg', function(data) {
-    if(data != false) {
-        alert("Success! Access this loop at http://ec2-18-221-49-149.us-east-2.compute.amazonaws.com:3456/" + data);
-    }
-    else {
-        alert("Oops! Something went wrong when we were saving your loop. :(");
-    }
-});*/
 
 //create the context for the web audio
 var matrixtofreqmap = new Map();
@@ -336,12 +300,6 @@ var volume = audioCtx.createGain();
 volume.connect(audioCtx.destination);
 volume.gain.value=volumeNum/100;
 //above line creates volume and starts it out at zero to correspond to where the volume bar starts
-
-// Sends the loop to the server
-/*function sendSong() {
-    console.log("sending song to server");
-    socketio.emit("save_loop", JSON.stringify({notes: notes, tempo: tempo, key: key, keyType: keyType}));
-}*/
 
 // Clears the entire grid
 function clearAll() {
