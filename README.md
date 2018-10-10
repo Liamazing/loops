@@ -7,7 +7,7 @@ Some notable features are the volume control, the ability to transpose between t
 
 ### How to Test:
 
-The site is continuously hosted [here](http://ec2-18-216-160-244.us-east-2.compute.amazonaws.com:3456/). **NOTE: as of 10/1/2018, the site has been affected by a change in Google's autoplay policy, meaning that the audio of the website does not currently play. We will fix this as soon as possible. Until then feel free to interact with the website.**
+The site is continuously hosted [here](http://ec2-18-216-160-244.us-east-2.compute.amazonaws.com:3456/).
 
 ### Guide of our files:
 
