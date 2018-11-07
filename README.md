@@ -1,7 +1,7 @@
 # L∞ps
 ##### by Liam Osler and Matt Gleeson
 
-Using React, Node, and Web Audio API, we created a desktop site that allows you to customize a musical loop through eight beats using.
+Using React, Node, and Web Audio API, we created a desktop site that allows you to customize a musical loop over eight beats.
 
 Some notable features are the volume control, the ability to transpose between the major, natural minor, harmonic minor, and melodic minor modes, a _clear grid_ function, and the delta timing backend to ensure that the application wouldn’t skip beats/play them out of time. Users can also use the spacebar to play/pause the loop instead of clicking on the play/pause button. We also added a volume slider for more control of the volume. Integrating React and designing the UI took a lot longer than we expected, and ended up consisting of about half of the project time. We also set up our server to be constantly hosted on our AWS instance without the need for repeatedly calling the node function.
 
